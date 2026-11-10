@@ -3,8 +3,10 @@ import hashlib
 import tkinter as tk
 from tkinter import messagebox
 
+from utilities import UtilitiesSystem
 
-# --- 1. Database Initialization ---
+
+# Database Initialization
 def init_db():
     conn = sqlite3.connect("database.db")
     cursor = conn.cursor()
@@ -18,12 +20,11 @@ def init_db():
     conn.close()
 
 
-# --- 2. Password Hashing ---
+# Password Hashing
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
 
 
-# --- 3. Main Dashboard kung saan naroon ang Utilities ---
 def open_dashboard():
     dashboard = tk.Tk()
     dashboard.title("SIA2 - Main Dashboard & Utilities")
@@ -31,17 +32,22 @@ def open_dashboard():
 
     tk.Label(dashboard, text="Welcome to the System!", font=("Arial", 14, "bold")).pack(pady=20)
 
+    util = UtilitiesSystem()
+
     # Utilities Functions
     def run_url_shortener():
-        messagebox.showinfo("URL Shortener", "Generated Short Link: lnk.ly/9821")
+        result = util.urlShortener("https://www.schoolportal.edu.ph/student/dashboard/grades")
+        messagebox.showinfo("URL Shortener", f"Generated Short Link: {result}")
 
     def run_messaging():
-        messagebox.showinfo("SMS & Messaging", "Message Sent Successfully to 09123456789")
+        recipient = "09123456789"
+        result = util.sendMessage(recipient, "Hello, reminder for our project meeting tomorrow.")
+        messagebox.showinfo("SMS & Messaging", f"{result} to {recipient}")
 
     def run_fake_data():
-        messagebox.showinfo("Fake Data", "Generated: Juan Dela Cruz | juan@email.com")
+        name, email = util.generateFakeData()
+        messagebox.showinfo("Fake Data", f"Generated: {name} | {email}")
 
-    # Mga Button para sa tatlong Utilities features
     tk.Button(dashboard, text="1. URL Shortening", width=25, command=run_url_shortener).pack(pady=10)
     tk.Button(dashboard, text="2. SMS and Messaging", width=25, command=run_messaging).pack(pady=10)
     tk.Button(dashboard, text="3. Fake Data Generation", width=25, command=run_fake_data).pack(pady=10)
@@ -49,7 +55,6 @@ def open_dashboard():
     dashboard.mainloop()
 
 
-# --- 4. Login & Register App Class ---
 class MiniProjectApp:
     def __init__(self, root):
         self.root = root
@@ -100,7 +105,7 @@ class MiniProjectApp:
         password = self.reg_pass_entry.get()
 
         if username == "" or password == "":
-            messagebox.showerror("Error", "Lahat ng fields ay kailangan punan!")
+            messagebox.showerror("Error", "All fields must be filled out!")
             return
 
         secure_password = hash_password(password)
@@ -115,14 +120,14 @@ class MiniProjectApp:
             messagebox.showinfo("Success", "Account registered successfully!")
             self.build_login_screen()
         except sqlite3.IntegrityError:
-            messagebox.showerror("Error", "May ganyan nang username! Pumili ng iba.")
+            messagebox.showerror("Error", "That username is already taken! Please choose another.")
 
     def handle_login(self):
         username = self.user_entry.get()
         password = self.pass_entry.get()
 
         if username == "" or password == "":
-            messagebox.showerror("Error", "Ilagay ang username at password!")
+            messagebox.showerror("Error", "Enter username and password!")
             return
 
         secure_password = hash_password(password)
@@ -135,17 +140,15 @@ class MiniProjectApp:
 
         if result:
             messagebox.showinfo("Welcome", f"Login successful, {username}!")
-            self.root.destroy()  # Isasara ang login window
-            open_dashboard()  # Bubuksan ang dashboard para sa utilities
+            self.root.destroy()
+            open_dashboard()
         else:
-            messagebox.showerror("Failed", "Maling username o password.")
+            messagebox.showerror("Failed", "Wrong username or password.")
 
 
-# --- Main Program Execution ---
 if __name__ == "__main__":
     root = tk.Tk()
     app = MiniProjectApp(root)
     root.mainloop()
 
 # Name: Ginaline Lopez
-# Section: BSIT 2-1
